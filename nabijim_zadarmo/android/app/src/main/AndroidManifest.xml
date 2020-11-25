@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="me.vavra.david.nabijim_zadarmo">
    <application
-        android:label="nabijim_zadarmo"
+        android:label="Nabíjím zadarmo"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
