@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'map.dart';
 
 class MyHomePage extends StatelessWidget {
   @override
@@ -7,8 +8,7 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text("Nabíjím zdarma"),
       ),
-      body: Center(
-      )
+      body: Map()
     );
   }
 
