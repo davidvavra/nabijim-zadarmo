@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:nabijim_zadarmo/data/mapotic.dart';
 
 class Map extends StatefulWidget {
@@ -12,19 +13,18 @@ class Map extends StatefulWidget {
 }
 
 class MapState extends State<Map> {
-  MapboxMapController mapController;
-
-  void _onMapCreated(MapboxMapController controller) {
-    mapController = controller;
-  }
+  Completer<GoogleMapController> _controller = Completer();
+  Set<Marker> _markers = Set();
 
   void _loadChargers() async {
     var chargers = await Mapotic.getChargers();
-    var symbols = chargers
-        .map((e) => SymbolOptions(
-            iconImage: "charging-station-15", geometry: LatLng(e.latitude, e.longitude)))
-        .toList();
-    mapController.addSymbols(symbols);
+    var markers = chargers
+        .map((e) => Marker(
+            markerId: MarkerId("${e.latitude} ${e.longitude}"), position: LatLng(e.latitude, e.longitude)))
+        .toSet();
+    setState(() {
+      _markers = markers;
+    });
   }
 
   @override
@@ -36,17 +36,15 @@ class MapState extends State<Map> {
   @override
   Widget build(BuildContext context) {
     return new Stack(children: [
-      MapboxMap(
-        accessToken:
-            "pk.eyJ1IjoiZGF2aWR2YXZyYSIsImEiOiJja2h6YXh1ZnQwOHgyMnJxa2g5OWhmY3NzIn0.yT7YzRhOtCS8cBcBB2AOUQ",
-        onMapCreated: _onMapCreated,
-        initialCameraPosition: const CameraPosition(
-            zoom: 5, target: LatLng(49.74466489584751, 15.535501365084432)),
-        attributionButtonMargins: Point(-50, -50),
-        myLocationEnabled: true,
-        myLocationTrackingMode: MyLocationTrackingMode.Tracking,
-        myLocationRenderMode: MyLocationRenderMode.COMPASS,
-        styleString: MapboxStyles.MAPBOX_STREETS
+      GoogleMap(
+        mapType: MapType.hybrid,
+        initialCameraPosition: CameraPosition(
+            target: LatLng(49.74466489584751, 15.535501365084432), zoom: 5),
+        onMapCreated: (GoogleMapController controller) {
+          _controller.complete(controller);
+        },
+        markers: _markers,
+        myLocationButtonEnabled: true,
       )
     ]);
   }
